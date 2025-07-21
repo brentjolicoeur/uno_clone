@@ -37,4 +37,3 @@ class Player:
                     valid_plays.append(card)
 
         return valid_plays
-

@@ -3,6 +3,12 @@ from player import Player
 
 import random
 
+COLORS = ("red", "yellow", "green", "blue")
+STANDARD = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+SPECIAL = ("Skip", "Reverse", "Draw Two")
+WILDS = ("Wild", "Wild Draw Four")
+
+
 def start():
     intro()
     players = generate_players()
@@ -73,11 +79,6 @@ def get_num_opponents():
     return num_opponents
 
 def build_new_game_deck():
-    COLORS = ("red", "yellow", "green", "blue")
-    STANDARD = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
-    SPECIAL = ("Skip", "Reverse", "Draw Two")
-    WILDS = ("Wild", "Wild Draw Four")
-
     deck = []
 
     for color in COLORS:
@@ -92,7 +93,9 @@ def build_new_game_deck():
         for _ in range(4):
             deck.append(Card("Wild", value, special=True))
 
-    random.shuffle(deck)
+    for _ in range(7):
+        random.shuffle(deck)
+
     return deck
 
 def deal_hands(players, deck):
@@ -112,7 +115,7 @@ def make_discard(deck):
     start_card = deck.pop()
     if start_card.value == "Wild Draw Four":
         while True:
-            print("Discard Pile cannot start with a Wild Draw Four. Reshuffling the Draw Pile and discarding a new card.")
+            print(f"Discard Pile cannot start with a {start_card}. Reshuffling the Draw Pile and discarding a new card.")
             deck.append(start_card)
             random.shuffle(deck)
             start_card = deck.pop()
@@ -120,3 +123,11 @@ def make_discard(deck):
                 break
     discard_pile.append(start_card)
     return discard_pile
+
+def draw_card(player, deck, num=1):
+    print(f"{player} is drawing {num} card(s).")
+    for _ in range(num):
+        card = deck.pop()
+        player.hand.append(card)
+    print(f"{player}'s hand now has {len(player.hand)} cards in it.")
+
