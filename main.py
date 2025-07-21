@@ -8,13 +8,9 @@ def main():
     first_round = game.Round(players, draw_pile, discard_pile)
 
     while not first_round.round_finished:
-        break
+        first_round.player_turn()
     
-    for player in first_round.players:
-        print(f"{player.name}'s hand is {player.hand}")
-        print(f"{player.name}'s valid plays are {player.get_valid_plays(first_round.active_discard)}")
-    
-    print(f"There are {len(draw_pile)} cards left in the Draw Pile.")
+    print("Thanks for playing")
 
     
 
