@@ -74,8 +74,9 @@ def get_num_opponents():
 
 def build_new_game_deck():
     COLORS = ("red", "yellow", "green", "blue")
-    STANDARD = ("0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "Skip", "Reverse", "Draw Two")
-    SPECIAL = ("Wild", "Draw Four")
+    STANDARD = (0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
+    SPECIAL = ("Skip", "Reverse", "Draw Two")
+    WILDS = ("Wild", "Wild Draw Four")
 
     deck = []
 
@@ -83,10 +84,13 @@ def build_new_game_deck():
         for value in STANDARD:
             for _ in range(2):
                 deck.append(Card(color, value))
+        for value in SPECIAL:
+            for _ in range(2):
+                deck.append(Card(color, value, special=True))
 
-    for value in SPECIAL:
+    for value in WILDS:
         for _ in range(4):
-            deck.append(Card("Wild", value))
+            deck.append(Card("Wild", value, special=True))
 
     random.shuffle(deck)
     return deck
@@ -106,7 +110,7 @@ def deal_hands(players, deck):
 def make_discard(deck):
     discard_pile = []
     start_card = deck.pop()
-    if start_card.value == "Draw Four":
+    if start_card.value == "Wild Draw Four":
         while True:
             print("Discard Pile cannot start with a Wild Draw Four. Reshuffling the Draw Pile and discarding a new card.")
             deck.append(start_card)

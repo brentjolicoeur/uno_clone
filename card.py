@@ -1,11 +1,14 @@
 from termcolor import colored
 
 class Card:
-    def __init__(self, color, value):
+    def __init__(self, color, value, special=False):
         self.color = color
         self.value = value
+        self.special = special
 
     def __repr__(self):
+        COLORS = ("red", "yellow", "green", "blue")
+
         if self.color == "red":
             return colored(f"{self.color} {self.value}", "red")
         if self.color == "yellow":
@@ -15,4 +18,13 @@ class Card:
         if self.color == "blue":
             return colored(f"{self.color} {self.value}", "blue")
         if self.color == "Wild":
-            return f"{self.value}"
+            string = ""
+            colors_index = 0
+            for char in self.value:
+                if char == " ":
+                    string += char
+                else:
+                    string += colored(char, COLORS[colors_index])
+                    colors_index += 1
+                    colors_index %= 4
+            return string
