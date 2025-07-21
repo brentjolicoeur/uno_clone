@@ -25,14 +25,16 @@ class Round():
             match self.active_discard.value:
                 case "Skip":
                     print(f"Uh Oh! {self.players[self.next_player_index]} loses their first turn!")
-                    self.next_player_index += 1
+                    self.next_player_index += 1 * self.direction
+                    self.next_player_index %= len(self.players)
                 case "Reverse":
                     print("Looks like we are changing directions!")
                     self.direction *= -1
                 case "Draw Two":
                     print(f"Oh No! {self.players[self.next_player_index]} must draw 2 cards and loses their first turn.")
                     self.draw_card(self.players[self.next_player_index], 2)
-                    self.next_player_index += 1
+                    self.next_player_index += 1 * self.direction
+                    self.next_player_index %= len(self.players)
                 case _:
                     print(f"Looks like {self.players[self.next_player_index]} will get to pick the first color!")
 
@@ -43,7 +45,7 @@ class Round():
                 self.reshuffle_draw_pile()
             card = self.draw.pop()
             player.hand.append(card)
-            print(f"{player}'s hand now has {len(player.hand)} cards in it.")
+        print(f"{player}'s hand now has {len(player.hand)} cards in it.")
             
     def reshuffle_draw_pile(self):
         print("Draw pile empty - reshuffling discard pile...")
@@ -55,7 +57,6 @@ class Round():
     def player_turn(self):
         player = self.active_player
         self.active_discard = self.discard[-1]
-        self.active_color = self.active_discard.color
 
         if player.cpu:
             valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
@@ -66,17 +67,20 @@ class Round():
                 if card_drawn.color == "Wild" or card_drawn.color == self.active_discard.color or card_drawn.value == self.active_discard.value:
                     self.play_card(player, card_drawn)
                     self.active_player = self.players[self.next_player_index]
+                    print("Passing turn to the next player.")
                     return
                 else:
                     self.next_player_index += 1 * self.direction
-                    self.next_player_index %= 4
+                    self.next_player_index %= len(self.players)
                     self.active_player = self.players[self.next_player_index]
+                    print("Passing turn to the next player.")
                     return
 
             else:
                 card_to_play = random.choice(valid_plays)
                 self.play_card(player, card_to_play)
                 self.active_player = self.players[self.next_player_index]
+                print("Passing turn to the next player.")
                 return
         else: # Player's turn
             print(f"Your hand is {player.hand}.")
@@ -84,20 +88,100 @@ class Round():
 
             if len(valid_plays) == 0:
                 print("You do not have a valid card to play. Drawing a card")
+                self.pause()
                 self.draw_card(player)
                 card_drawn = player.hand[-1]
+                print(f"You drew a {card_drawn}.")
                 if card_drawn.color == "Wild" or card_drawn.color == self.active_discard.color or card_drawn.value == self.active_discard.value:
                     print(f"{card_drawn} is a valid card to play.")
                     response = input(f"Do you wish to play {card_drawn}? [Y]es or [N]o? ")
                     while response.lower() != "y" and response.lower() != "n":
                         response = input("Please only enter either y or n: ")
+                    if response.lower() == "y":
+                        self.play_card(player, card_drawn)
+                        self.active_player = self.players[self.next_player_index]
+                        print("Passing turn to the next player.")
+                        return
+                    else:
+                        print("Passing turn to the next player.")
+                        self.next_player_index += 1 * self.direction
+                        self.next_player_index %= 4
+                        self.active_player = self.players[self.next_player_index]
+                        return
+                else: #card draw did not produce a valid card to play
+                    print(f"{card_drawn} is not a valid card to play.")
+                    self.pause()
+                    print("Passing turn to the next player.")
+                    self.next_player_index += 1 * self.direction
+                    self.next_player_index %= 4
+                    self.active_player = self.players[self.next_player_index]
+                    return
+            else: #player has valid cards to play.  Draw or play
+                choice = input("Do you wish to [P]lay a card or [D]raw a card? ")
+                while choice.lower() != "p" and choice.lower() != "d":
+                        choice = input("Please only enter either p or d: ")
+                if choice.lower() == "d":
+                    print("Drawing a card")
+                    self.draw_card(player)
+                    card_drawn = player.hand[-1]
+                    print(f"You drew a {card_drawn}.")
+                    if card_drawn.color == "Wild" or card_drawn.color == self.active_discard.color or card_drawn.value == self.active_discard.value:
+                        if card_drawn.value == "Wild Draw Four":
+                            #make sure it's valid
+                            if not player.valid_draw_four(self.active_color):
+                                print(f"{card_drawn} is not a valid card to play.")
+                                self.pause()
+                                print("Passing turn to the next player.")
+                                self.next_player_index += 1 * self.direction
+                                self.next_player_index %= 4
+                                self.active_player = self.players[self.next_player_index]
+                                return
+                    
+                        print(f"{card_drawn} is a valid card to play.")
+                        response = input(f"Do you wish to play {card_drawn}? [Y]es or [N]o? ")
+                        while response.lower() != "y" and response.lower() != "n":
+                            response = input("Please only enter either y or n: ")
+                        if response.lower() == "y":
+                            self.play_card(player, card_drawn)
+                            self.active_player = self.players[self.next_player_index]
+                            print("Passing turn to the next player.")
+                            return
+                        else:
+                            print("Passing turn to the next player.")
+                            self.next_player_index += 1 * self.direction
+                            self.next_player_index %= 4
+                            self.active_player = self.players[self.next_player_index]
+                            return
+                    else: #card draw did not produce a valid card to play
+                        print(f"{card_drawn} is not a valid card to play.")
+                        self.pause()
+                        print("Passing turn to the next player.")
+                        self.next_player_index += 1 * self.direction
+                        self.next_player_index %= 4
+                        self.active_player = self.players[self.next_player_index]
+                        return
+                
+                else: #player wishes to play a card
+                    print(f"The following cards are valid to play.")
+                    for index, card in enumerate(valid_plays):
+                        print(f"{index + 1}. {card}")
 
+                    valid_num = False
+                    while not valid_num:
+                        try:
+                            card_num = int(input("Please enter the number from the list corresponding to the card you wish to play. "))
+                            if 1 <= card_num <= len(valid_plays):
+                                valid_num = True
+                            else:
+                                print("Please enter a number corresponding to the card you wish to play from the above list of valid cards. ")
+                        except:
+                            print("Please enter a valid number.")
 
-            print(f"{player} is a PC and skipping their turn.")
-            self.next_player_index += 1 * self.direction
-            self.next_player_index %= 4
-            self.active_player = self.players[self.next_player_index]
-            return
+                    self.play_card(player, valid_plays[card_num - 1])
+                    self.active_player = self.players[self.next_player_index]
+                    print("Passing turn to the next player.")
+                    return
+
 
     def play_card(self, player, card):
         print(f"{player} is playing {card}.")
@@ -111,6 +195,7 @@ class Round():
                 case "Skip":
                     print(f"Uh Oh! {self.players[self.next_player_index]} loses their next turn!")
                     self.next_player_index += 1 * self.direction
+                    self.next_player_index %= len(self.players)
                     self.active_color = card.color
                 case "Reverse":
                     print(f"{player} reversed directions!")
@@ -120,6 +205,7 @@ class Round():
                     print(f"Oh No! {self.players[self.next_player_index]} must draw 2 cards and lose their next turn.")
                     self.draw_card(self.players[self.next_player_index], 2)
                     self.next_player_index += 1 * self.direction
+                    self.next_player_index %= len(self.players)
                     self.active_color = card.color
                 case "Wild":
                     print(f"{player} gets to pick the next color!")
@@ -132,6 +218,7 @@ class Round():
                     print(f"Oh No! {self.players[self.next_player_index]} must draw 4 cards and lose their next turn.")
                     self.draw_card(self.players[self.next_player_index], 4)
                     self.next_player_index += 1 * self.direction
+                    self.next_player_index %= len(self.players)
                     print(f"{player} gets to pick the next color!")
                     new_color = random.choice(COLORS)
                     while new_color == self.active_color:
@@ -141,7 +228,7 @@ class Round():
         else:
             self.active_color = card.color
         self.next_player_index += 1 * self.direction
-        self.next_player_index %= 4
+        self.next_player_index %= len(self.players)
         
         print(f"{player} now has {len(player.hand)} card(s) in their hand.")
         if len(player.hand) == 0:
@@ -150,7 +237,8 @@ class Round():
             return
         print(f"The active color is {self.active_color}.")
         
-
+    def pause(self):
+        ok = input("Press Enter to continue.")
 def start():
     intro()
     players = generate_players()
