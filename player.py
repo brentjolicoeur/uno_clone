@@ -5,6 +5,7 @@ class Player:
         self.name = name
         self.hand = []
         self.cpu = cpu
+        self.score = 0
 
     def __repr__(self):
         return self.name

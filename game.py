@@ -15,11 +15,11 @@ class Round():
         self.active_player = self.players[0] #initializes as first player in list
         self.direction = 1 # will either be 1 or -1 to determine who next player is as we cycle through indices
         self.npi = 1 # stands for next_player-index. starts as second player in the player list. 
+        self.winner = None
         print(f"The top card of the Discard Pile is {self.active_discard}.")
         print("********************")
         self.check_first_discard_special()
         print(f"The first player to play will be {self.active_player}")
-        print("********************")
 
     def check_first_discard_special(self):
         if self.active_discard.special:
@@ -46,7 +46,7 @@ class Round():
                 self.reshuffle_draw_pile()
             card = self.draw.pop()
             player.hand.append(card)
-        print(f"{player}'s hand now has {len(player.hand)} cards in it.")
+        print(f"{player}'s hand now has {len(player.hand)} card(s) in it.")
             
     def reshuffle_draw_pile(self):
         print("Draw pile empty - reshuffling discard pile...")
@@ -188,7 +188,10 @@ class Round():
                 case "Reverse":
                     print(f"{player} reversed directions!")
                     self.direction *= -1
-                    self.npi += 2 * self.direction
+                    if len(self.players) == 2:
+                        self.npi += self.direction
+                    else:
+                        self.npi += 2 * self.direction
                     self.active_color = card.color
                 case "Draw Two":
                     print(f"Oh No! {self.players[self.npi]} must draw 2 cards and lose their next turn.")
@@ -213,10 +216,32 @@ class Round():
         if len(player.hand) == 0:
             print(f"{player} wins the round!")
             self.round_finished = True
+            self.winner = player
             return
         
     def pause(self):
         ok = input("Press Enter to continue.")
+
+    def score_round(self):
+        print("********************")
+        print(f"{self.winner} won the round.")
+        round_total = 0
+
+        for player in self.players:
+            if player == self.winner:
+                continue
+            print(f"Scoring {player}'s hand of {player.hand}.")
+            total = 0
+
+            for card in player.hand:
+                total += card.points
+            
+            print(f"{player}'s hand is worth {total} points.")
+            round_total += total
+        
+        self.winner.score += round_total
+        print(f"{self.winner} scored {round_total} points this round and now has {self.winner.score} points.")
+
 
 def start():
     intro()

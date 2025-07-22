@@ -10,7 +10,8 @@ def main():
     while not first_round.round_finished:
         first_round.player_turn()
     
-    print("Thanks for playing")
+    first_round.score_round()
+    print("Thanks for playing!!")
 
     
 

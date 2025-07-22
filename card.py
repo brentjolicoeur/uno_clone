@@ -11,6 +11,8 @@ class Card:
         self.color = color
         self.value = value
         self.special = special
+        self.points = 0
+        self._set_points()
 
     def __repr__(self):
         COLORS = ("red", "yellow", "green", "blue")
@@ -34,6 +36,16 @@ class Card:
                     colors_index += 1
                     colors_index %= 4
             return string
+
+    def _set_points(self):
+        if not self.special:
+            self.points = self.value
+        elif self.color == "Wild":
+            self.points = 50
+        else:
+            self.points = 20
+
+
 
 def build_new_game_deck():
     deck = []
