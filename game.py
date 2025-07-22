@@ -59,8 +59,11 @@ class Round():
         player = self.active_player
         self.active_discard = self.discard[-1]
         self.npi = self.players.index(player) + self.direction
+        helpers.validate_npi(self)
+        print("********************")
         print(f"The top card of the Discard Pile is {self.active_discard}.")
-        print(f"The active color is {self.active_color}.")
+        if self.active_color != "Wild":
+            print(f"The active color is {self.active_color}.")
 
         if player.cpu:
             valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
@@ -82,9 +85,11 @@ class Round():
                 helpers.end_turn(self)
                 return
         else: # Player's turn
+            print("********************")
             print(f"Your hand is {player.hand}.")
             valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
             if len(valid_plays) == 0:
+                print("********************")
                 print("You do not have a valid card to play. Drawing a card")
                 self.pause()
                 self.draw_card(player)
@@ -93,22 +98,28 @@ class Round():
                 #card drawn is a valid play
                 if card_drawn.color == "Wild" or card_drawn.color == self.active_discard.color or card_drawn.value == self.active_discard.value:
                     print(f"{card_drawn} is a valid card to play.")
+                    print("********************")
                     response = input(f"Do you wish to play {card_drawn}? [Y]es or [N]o? ")
                     while response.lower() != "y" and response.lower() != "n":
                         response = input("Please only enter either y or n: ")
                     if response.lower() == "y":
                         self.play_card(player, card_drawn)
                         helpers.end_turn(self)
+                        self.pause()
                         return
                     else:
                         helpers.end_turn(self)
+                        self.pause()
                         return
                 else: #card draw did not produce a valid card to play
+                    print("********************")
                     print(f"{card_drawn} is not a valid card to play.")
                     self.pause()
                     helpers.end_turn(self)
+                    self.pause()
                     return
             else: #player has valid cards to play.  Draw or play
+                print("********************")
                 choice = input("Do you wish to [P]lay a card or [D]raw a card? ")
                 while choice.lower() != "p" and choice.lower() != "d":
                         choice = input("Please only enter either p or d: ")
@@ -158,6 +169,7 @@ class Round():
                             print("Please enter a valid number.")
                     self.play_card(player, valid_plays[card_num - 1])
                     helpers.end_turn(self)
+                    self.pause()
                     return
 
     def play_card(self, player, card):
@@ -185,20 +197,14 @@ class Round():
                     self.active_color = card.color
                 case "Wild":
                     print(f"{player} gets to pick the next color!")
-                    new_color = random.choice(COLORS)
-                    while new_color == self.active_color:
-                        new_color = random.choice(COLORS)
-                    print(f"{player} chooses {new_color}")
+                    new_color = helpers.wild_get_new_color(self)
                     self.active_color = new_color
                 case "Wild Draw Four":
                     print(f"Oh No! {self.players[self.npi]} must draw 4 cards and lose their next turn.")
                     self.draw_card(self.players[self.npi], 4)
                     helpers.skip_next_player(self)
                     print(f"{player} gets to pick the next color!")
-                    new_color = random.choice(COLORS)
-                    while new_color == self.active_color:
-                        new_color = random.choice(COLORS)
-                    print(f"{player} chooses {new_color}")
+                    new_color = helpers.wild_get_new_color(self)
                     self.active_color = new_color
         else:
             self.active_color = card.color
@@ -208,7 +214,6 @@ class Round():
             print(f"{player} wins the round!")
             self.round_finished = True
             return
-        print(f"The active color is {self.active_color}.")
         
     def pause(self):
         ok = input("Press Enter to continue.")
