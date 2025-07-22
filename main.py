@@ -1,6 +1,4 @@
 import game
-#from card import Card
-#from player import Player
 
 def main():
     players, draw_pile, discard_pile = game.start() #initialize game, create players, draw pile, deal hands, first discard

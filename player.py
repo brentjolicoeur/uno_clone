@@ -1,5 +1,3 @@
-from card import Card
-
 class Player:
     def __init__(self, name, cpu=True):
         self.name = name

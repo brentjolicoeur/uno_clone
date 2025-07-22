@@ -1,4 +1,4 @@
-from card import build_new_game_deck, COLORS
+from card import build_new_game_deck
 from player import Player
 import helpers
 
@@ -12,12 +12,12 @@ class Round():
         self.round_finished = False
         self.active_discard = self.discard[-1]
         self.active_color = self.active_discard.color
-        self.active_player = self.players[0] #initializes as first player in list
+        self.active_player = self.players[0] #initializes as first player in list (the "left" of the dealer who is last in the list)
         self.direction = 1 # will either be 1 or -1 to determine who next player is as we cycle through indices
         self.npi = 1 # stands for next_player-index. starts as second player in the player list. 
         self.winner = None
         print(f"The top card of the Discard Pile is {self.active_discard}.")
-        print("********************")
+        print("************************************************************")
         self.check_first_discard_special()
         print(f"The first player to play will be {self.active_player}")
 
@@ -27,15 +27,17 @@ class Round():
                 case "Skip":
                     print(f"Uh Oh! {self.players[self.npi]} loses their first turn!")
                     helpers.skip_next_player(self)
-                    round.active_player = round.players[round.npi]
+                    self.active_player = self.players[self.npi]
                 case "Reverse":
                     print("Looks like we are changing directions!")
                     self.direction *= -1
+                    if len(self.players) != 2: # first player will be to the "right" of the dealer. first player stays same in 2-player
+                        self.active_player = self.players[-2]
                 case "Draw Two":
                     print(f"Oh No! {self.players[self.npi]} must draw 2 cards and loses their first turn.")
                     self.draw_card(self.players[self.npi], 2)
                     helpers.skip_next_player(self)
-                    round.active_player = round.players[round.npi]
+                    self.active_player = self.players[self.npi]
                 case _:
                     print(f"Looks like {self.active_player} will get to pick the first color!")
 
@@ -60,13 +62,14 @@ class Round():
         self.active_discard = self.discard[-1]
         self.npi = self.players.index(player) + self.direction
         helpers.validate_npi(self)
-        print("********************")
+        print("************************************************************")
         print(f"The top card of the Discard Pile is {self.active_discard}.")
         if self.active_color != "Wild":
             print(f"The active color is {self.active_color}.")
 
+        valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
+
         if player.cpu:
-            valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
             if len(valid_plays) == 0:
                 print(f"{player} does not have any valid cards to play. Drawing a card.")
                 self.draw_card(player)
@@ -85,41 +88,36 @@ class Round():
                 helpers.end_turn(self)
                 return
         else: # Player's turn
-            print("********************")
+            print("************************************************************")
             print(f"Your hand is {player.hand}.")
-            valid_plays = player.get_valid_plays(self.active_color, self.active_discard)
+            self.pause()
             if len(valid_plays) == 0:
-                print("********************")
+                print("************************************************************")
                 print("You do not have a valid card to play. Drawing a card")
-                self.pause()
                 self.draw_card(player)
                 card_drawn = player.hand[-1]
                 print(f"You drew a {card_drawn}.")
                 #card drawn is a valid play
                 if card_drawn.color == "Wild" or card_drawn.color == self.active_discard.color or card_drawn.value == self.active_discard.value:
                     print(f"{card_drawn} is a valid card to play.")
-                    print("********************")
+                    print("************************************************************")
                     response = input(f"Do you wish to play {card_drawn}? [Y]es or [N]o? ")
                     while response.lower() != "y" and response.lower() != "n":
                         response = input("Please only enter either y or n: ")
                     if response.lower() == "y":
                         self.play_card(player, card_drawn)
                         helpers.end_turn(self)
-                        self.pause()
                         return
                     else:
                         helpers.end_turn(self)
-                        self.pause()
                         return
                 else: #card draw did not produce a valid card to play
-                    print("********************")
+                    print("************************************************************")
                     print(f"{card_drawn} is not a valid card to play.")
-                    self.pause()
                     helpers.end_turn(self)
-                    self.pause()
                     return
             else: #player has valid cards to play.  Draw or play
-                print("********************")
+                print("************************************************************")
                 choice = input("Do you wish to [P]lay a card or [D]raw a card? ")
                 while choice.lower() != "p" and choice.lower() != "d":
                         choice = input("Please only enter either p or d: ")
@@ -133,7 +131,6 @@ class Round():
                             #make sure it's valid
                             if not player.valid_draw_four(self.active_color):
                                 print(f"{card_drawn} is not a valid card to play.")
-                                self.pause()
                                 helpers.end_turn(self)
                                 return
                     
@@ -150,7 +147,6 @@ class Round():
                             return
                     else: #card draw did not produce a valid card to play
                         print(f"{card_drawn} is not a valid card to play.")
-                        self.pause()
                         helpers.end_turn(self)
                         return              
                 else: #player wishes to play a card
@@ -169,7 +165,6 @@ class Round():
                             print("Please enter a valid number.")
                     self.play_card(player, valid_plays[card_num - 1])
                     helpers.end_turn(self)
-                    self.pause()
                     return
 
     def play_card(self, player, card):
@@ -190,8 +185,10 @@ class Round():
                     self.direction *= -1
                     if len(self.players) == 2:
                         self.npi += self.direction
+                        helpers.validate_npi(self)
                     else:
                         self.npi += 2 * self.direction
+                        helpers.validate_npi(self)
                     self.active_color = card.color
                 case "Draw Two":
                     print(f"Oh No! {self.players[self.npi]} must draw 2 cards and lose their next turn.")
@@ -223,7 +220,7 @@ class Round():
         ok = input("Press Enter to continue.")
 
     def score_round(self):
-        print("********************")
+        print("************************************************************")
         print(f"{self.winner} won the round.")
         round_total = 0
 
@@ -242,7 +239,6 @@ class Round():
         self.winner.score += round_total
         print(f"{self.winner} scored {round_total} points this round and now has {self.winner.score} points.")
 
-
 def start():
     intro()
     players = generate_players()
@@ -253,9 +249,9 @@ def start():
     return players, draw_pile, discard_pile
 
 def intro():
-    print("********************")
+    print("************************************************************")
     print("Welcome to UNO!")
-    print("********************")
+    print("************************************************************")
 
 def generate_players():
     NAMES = [
@@ -289,7 +285,7 @@ def generate_players():
     num_opponents = get_num_opponents()
 
     opponents = random.sample(NAMES,num_opponents)
-    print("********************")
+    print("************************************************************")
     print("Today you will be playing against:")
     for opponent in opponents:
         print(opponent)
@@ -303,11 +299,11 @@ def get_num_opponents():
     valid_num = False
     while not valid_num:
         try:
-            num_opponents = int(input("How many opponents would you like? (1-3) "))
-            if 1 <= num_opponents <= 3:
+            num_opponents = int(input("How many opponents would you like? (1-9) "))
+            if 1 <= num_opponents <= 9:
                 valid_num = True
             else:
-                print("Please enter a number between 1 and 3. ")
+                print("Please enter a number between 1 and 9. ")
         except:
             print("Please enter a valid digit.")
     return num_opponents
@@ -317,16 +313,16 @@ def deal_hands(players, deck):
     player_order = "The player order is "
     for player in players:
         player_order += f"{player.name} "
-    print("********************")
+    print("************************************************************")
     print(player_order)
     print(f"The Dealer will be {players[-1]}")
-    print("********************")
+    print("************************************************************")
     print("Dealing 7 cards to each player")
     for _ in range(7):
         for player in players:
             card = deck.pop()
             player.hand.append(card)
-    print("********************")
+    print("************************************************************")
 
 def make_discard(deck):
     discard_pile = []
@@ -341,5 +337,3 @@ def make_discard(deck):
                 break
     discard_pile.append(start_card)
     return discard_pile
-
-

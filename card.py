@@ -45,8 +45,6 @@ class Card:
         else:
             self.points = 20
 
-
-
 def build_new_game_deck():
     deck = []
 
