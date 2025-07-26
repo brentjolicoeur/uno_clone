@@ -35,12 +35,3 @@ class Player:
             if card.color == color:
                 valid = False
         return valid
-    
-    def play_turn(self, current_discard):
-        if self.cpu:
-            valid_plays = self.get_valid_plays(current_discard)
-            if len(valid_plays) == 0:
-                #draw a card
-                pass
-        else:
-            pass

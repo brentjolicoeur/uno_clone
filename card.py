@@ -7,7 +7,31 @@ SPECIAL = ("Skip", "Reverse", "Draw Two")
 WILDS = ("Wild", "Wild Draw Four")
 
 class Card:
+    """
+    A class used to represent an individual Card
+
+    ...
+
+    Attributes
+    ----------
+    color : str
+        the color of the card
+    value : int or str
+        represents the printed value or effect of the card
+    special: bool, default False
+        whether or not the card has a special ability when played (default False)
+
+    Methods
+    ------
+    _set_points()
+        Assigns a point value to the card for scoring
+    """
+
     def __init__(self, color, value, special=False):
+        """
+        Parameters
+        ----------
+        """
         self.color = color
         self.value = value
         self.special = special
@@ -33,8 +57,8 @@ class Card:
                     string += char
                 else:
                     string += colored(char, COLORS[colors_index])
-                    colors_index += 1
-                    colors_index %= 4
+                    colors_index = (colors_index + 1) % 4
+
             return string
 
     def _set_points(self):

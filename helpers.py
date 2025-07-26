@@ -6,12 +6,6 @@ def validate_npi(round):
         round.npi += len(round.players)
     round.npi %= len(round.players)
 
-""" def set_next_player_index(index, num_players):
-    while index < 0:
-        index += num_players
-    index %= num_players
-    return index
- """
 def skip_next_player(round):
     round.npi += round.direction
     validate_npi(round)
@@ -41,3 +35,13 @@ def wild_get_new_color(round):
                 new_color = input("Please pick a new color (please type full color name): ")
         print(f"{player} chooses {new_color}")
         return new_color
+    
+def keep_playing():
+    play_again = input("Would you like to play again? [Y]es or [N]o? ")
+
+    while play_again.lower() != "y" and play_again.lower() != "n":
+        play_again = input("Please only enter either y or n: ")
+    if play_again.lower() == "y":
+        return True
+    else:
+        return False
