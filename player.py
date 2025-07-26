@@ -23,16 +23,6 @@ class Player:
         determines if a Wild Draw Four in hand is valid to play
     """
     def __init__(self, name, cpu=True):
-        """
-        Initializes an instance of the Player class.
-
-        Parameters
-        ----------
-        name : str
-            the name of the player
-        cpu : bool
-            whether or not the player is computer-controlled or player-controlled
-        """
         self.name = name
         self.hand = []
         self.cpu = cpu
@@ -51,12 +41,12 @@ class Player:
     
     def get_valid_plays(self, color, current_discard):
         """
-        Determines which cards in a player's `hand` are valid to play on their turn.
+        Determines which cards in a player's `hand` are valid to play on their turn
 
         Parameters
         ----------
         color : str
-            the "active" color for the turn. (necessary in case last played card was Wild)
+            the "active" color for the turn. (necessary in case discard card was Wild)
         current_discard : Card object
             the Card at the top of the discard pile
 
@@ -87,7 +77,7 @@ class Player:
 
     def valid_draw_four(self, color):
         """
-        determines if a Wild Draw Four in hand is valid to play (no cards of matching color)
+        determines if a Wild Draw Four in hand is valid to play
         
         Parameters
         ----------
