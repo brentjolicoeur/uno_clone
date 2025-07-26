@@ -25,7 +25,7 @@ class Round():
         if self.active_discard.special:
             match self.active_discard.value:
                 case "Skip":
-                    print(f"Uh Oh! {self.players[self.npi]} loses their first turn!")
+                    print(f"Uh Oh! {self.active_player} loses their first turn!")
                     helpers.skip_next_player(self)
                     self.active_player = self.players[self.npi]
                 case "Reverse":
@@ -34,8 +34,8 @@ class Round():
                     if len(self.players) != 2: # first player will be to the "right" of the dealer. first player stays same in 2-player
                         self.active_player = self.players[-2]
                 case "Draw Two":
-                    print(f"Oh No! {self.players[self.npi]} must draw 2 cards and loses their first turn.")
-                    self.draw_card(self.players[self.npi], 2)
+                    print(f"Oh No! {self.active_player} must draw 2 cards and loses their first turn.")
+                    self.draw_card(self.active_player, 2)
                     helpers.skip_next_player(self)
                     self.active_player = self.players[self.npi]
                 case _:
@@ -293,6 +293,8 @@ def generate_players():
     for i in range(num_opponents):
         players.append(Player(f"{opponents[i]}"))
 
+    random.shuffle(players)
+
     return players
 
 def get_num_opponents():
@@ -309,7 +311,6 @@ def get_num_opponents():
     return num_opponents
 
 def deal_hands(players, deck):
-    random.shuffle(players)
     player_order = "The player order is "
     for player in players:
         player_order += f"{player.name} "

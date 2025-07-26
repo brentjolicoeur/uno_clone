@@ -1,6 +1,4 @@
-from card import build_new_game_deck
 import game, helpers
-
 
 def main():
     players, draw_pile, discard_pile = game.start() #initialize game, create players, draw pile, deal hands, first discard
@@ -16,16 +14,12 @@ def main():
         continue_playing = helpers.keep_playing()
 
         if continue_playing:
-            for player in players:
-                player.hand = []
-            new_deck = build_new_game_deck()
-            game.deal_hands(players, new_deck)
-            new_discard = game.make_discard(new_deck)
-
-            round = game.Round(players, new_deck, new_discard)
-
-
-
+            next_players, next_draw, next_discard = helpers.generate_next_round(players)
+            round = game.Round(next_players, next_draw, next_discard)
+   
+    print("The final scores are:")
+    for player in players:
+        print(f"{player.name}: {player.score} points")
     print("Thanks for playing!!")
 
     

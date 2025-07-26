@@ -1,4 +1,6 @@
-from card import COLORS
+from card import COLORS, build_new_game_deck
+#from game import deal_hands, make_discard
+import game
 import random
 
 def validate_npi(round):
@@ -45,3 +47,19 @@ def keep_playing():
         return True
     else:
         return False
+
+def update_player_order(players):
+    old_first = players.pop(0) #previous first player becomes the new dealer
+    players.append(old_first)
+    return players
+
+def generate_next_round(players):
+    new_order = update_player_order(players) #set new player order
+    for player in players: #reset all player hands
+        player.hand = []
+    new_draw = build_new_game_deck()
+    game.deal_hands(players, new_draw)
+    new_discard = game.make_discard(new_draw)
+
+    return new_order, new_draw, new_discard
+
