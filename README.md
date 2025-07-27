@@ -33,19 +33,6 @@ A text-based clone of the classic card game Uno, playable entirely from the comm
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3. **Install Dependencies**
-    ```sh
-    pip install -r requirements.txt
-    ```
-
-## Dependencies
-
-This project uses the following Python packages:
-- `termcolor` (for colored terminal output)
-- See `requirements.txt` for the complete list.
-
-## Usage
-
 ## Usage
 
 Start the game with one of the following commands, depending on your OS and Python installation:
